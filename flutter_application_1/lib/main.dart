@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget { // statelessWidget: Un widget inmutable qu
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 238, 66, 66)),
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -51,6 +51,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _openImageView() {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) => const ImageView(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold( // Proporciona el esqueleto visual estándar de una pantalla (barra superior, cuerpo y botones flotantes).
@@ -62,17 +71,29 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column( 
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset( //Muestra una imagen local del proyecto con 150 píxeles de alto (requiere estar declarada en el archivo pubspec.yaml).
-              'assets/images/contador.jpg',
-              height: 400,
+            SizedBox(
+              height: 300,
+              child: Image.asset(
+                'assets/images/contador.jpg',
+                fit: BoxFit.contain,
+              ),
             ),
             const SizedBox(height: 20),
             const Text(
               'You have pushed the button this many times:',
+              style: TextStyle(fontSize: 20),
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontSize: 40,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: _openImageView,
+              icon: const Icon(Icons.image),
+              label: const Text('Ver imagen'),
             ),
           ],
         ),
@@ -99,6 +120,34 @@ class _MyHomePageState extends State<MyHomePage> {
             child: const Icon(Icons.add),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ImageView extends StatelessWidget {
+  const ImageView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Imagen del contador'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/contador.jpg'),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Regresar'),
+            ),
+          ],
+        ),
       ),
     );
   }
