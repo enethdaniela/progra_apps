@@ -10,16 +10,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:calculadora_02/main.dart';
 
 void main() {
-  testWidgets('Calculator displays and evaluates an addition', (WidgetTester tester) async {
+  testWidgets('La calculadora suma dos números', (WidgetTester tester) async {
     await tester.pumpWidget(const CalculatorApp());
 
-    expect(find.text('0'), findsWidgets);
     await tester.tap(find.text('2'));
+    await tester.pump();
     await tester.tap(find.text('+'));
+    await tester.pump();
     await tester.tap(find.text('3'));
+    await tester.pump();
     await tester.tap(find.text('='));
     await tester.pump();
 
-    expect(find.text('5'), findsWidgets);
+    expect(find.text('5'), findsNWidgets(2));
   });
 }
