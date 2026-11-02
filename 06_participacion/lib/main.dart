@@ -14,9 +14,20 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: '.env');
+  final supabaseUrl = dotenv.env['SUPABASE_URL']?.trim();
+  final supabaseKey = dotenv.env['SUPABASE_KEY']?.trim();
+  if (supabaseUrl == null ||
+      supabaseUrl.isEmpty ||
+      supabaseKey == null ||
+      supabaseKey.isEmpty) {
+    throw StateError(
+      'Configura SUPABASE_URL y SUPABASE_KEY en el archivo .env.',
+    );
+  }
+
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    publishableKey: dotenv.env['SUPABASE_KEY']!,
+    url: supabaseUrl,
+    publishableKey: supabaseKey,
   );
 
   final authRepo = SupabaseAuthRepository();

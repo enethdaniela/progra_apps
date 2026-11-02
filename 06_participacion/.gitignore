@@ -50,3 +50,4 @@ app.*.map.json
 # configuración local
 .env
 .env.*
+!.env.example
