@@ -21,7 +21,7 @@ class SesionProvider extends ChangeNotifier {
       await _registrarUsuario(correo, clave, nombre);
       idUsuario = _authRepository.obtenerIdActual();
     } catch (exception) {
-      error = exception.toString();
+      error = _mensajeError(exception);
     } finally {
       _terminarCarga();
     }
@@ -34,7 +34,7 @@ class SesionProvider extends ChangeNotifier {
       await _authRepository.ingresar(correo, clave);
       idUsuario = _authRepository.obtenerIdActual();
     } catch (exception) {
-      error = exception.toString();
+      error = _mensajeError(exception);
     } finally {
       _terminarCarga();
     }
@@ -47,7 +47,7 @@ class SesionProvider extends ChangeNotifier {
       await _authRepository.salir();
       idUsuario = null;
     } catch (exception) {
-      error = exception.toString();
+      error = _mensajeError(exception);
     } finally {
       _terminarCarga();
     }
@@ -62,5 +62,12 @@ class SesionProvider extends ChangeNotifier {
   void _terminarCarga() {
     cargando = false;
     notifyListeners();
+  }
+
+  String _mensajeError(Object exception) {
+    if (exception is FormatException) {
+      return exception.message;
+    }
+    return exception.toString();
   }
 }

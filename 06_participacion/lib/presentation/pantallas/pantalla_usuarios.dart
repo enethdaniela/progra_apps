@@ -24,8 +24,12 @@ class _PantallaUsuariosState extends State<PantallaUsuarios> {
   }
 
   Future<void> _cerrarSesion() async {
-    await context.read<SesionProvider>().salir();
+    final sesion = context.read<SesionProvider>();
+    await sesion.salir();
     if (!mounted) {
+      return;
+    }
+    if (sesion.idUsuario != null) {
       return;
     }
 
@@ -66,7 +70,7 @@ class _PantallaUsuariosState extends State<PantallaUsuarios> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (provider.error != null && provider.perfiles.isEmpty) {
+    if (provider.perfiles.isEmpty && provider.error != null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -85,16 +89,24 @@ class _PantallaUsuariosState extends State<PantallaUsuarios> {
 
     return RefreshIndicator(
       onRefresh: context.read<PerfilesProvider>().cargar,
-      child: ListView.builder(
-        itemCount: provider.perfiles.length,
-        itemBuilder: (context, index) {
-          final perfil = provider.perfiles[index];
-          return ListTile(
-            leading: const Icon(Icons.person),
-            title: Text(perfil.nombre),
-            subtitle: Text(perfil.creadoEn.toLocal().toString()),
-          );
-        },
+      child: ListView(
+        children: [
+          if (provider.error != null)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                provider.error!,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ...provider.perfiles.map(
+            (perfil) => ListTile(
+              leading: const Icon(Icons.person),
+              title: Text(perfil.nombre),
+              subtitle: Text(perfil.creadoEn.toLocal().toString()),
+            ),
+          ),
+        ],
       ),
     );
   }

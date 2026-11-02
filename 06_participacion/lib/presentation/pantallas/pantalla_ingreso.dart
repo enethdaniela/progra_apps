@@ -53,18 +53,21 @@ class _PantallaIngresoState extends State<PantallaIngreso> {
         padding: const EdgeInsets.all(24),
         children: [
           TextField(
+            key: const ValueKey('correo'),
             controller: correoController,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(labelText: 'Correo'),
           ),
           const SizedBox(height: 16),
           TextField(
+            key: const ValueKey('clave'),
             controller: claveController,
             obscureText: true,
             decoration: const InputDecoration(labelText: 'Contraseña'),
           ),
           const SizedBox(height: 16),
           TextField(
+            key: const ValueKey('nombre'),
             controller: nombreController,
             decoration: const InputDecoration(labelText: 'Nombre'),
           ),
@@ -80,6 +83,7 @@ class _PantallaIngresoState extends State<PantallaIngreso> {
             const Center(child: CircularProgressIndicator())
           else ...[
             ElevatedButton(
+              key: const ValueKey('ingresar'),
               onPressed: () => context.read<SesionProvider>().ingresar(
                     correoController.text,
                     claveController.text,
@@ -87,6 +91,7 @@ class _PantallaIngresoState extends State<PantallaIngreso> {
               child: const Text('Ingresar'),
             ),
             ElevatedButton(
+              key: const ValueKey('crear-cuenta'),
               onPressed: () => context.read<SesionProvider>().registrar(
                     correoController.text,
                     claveController.text,
