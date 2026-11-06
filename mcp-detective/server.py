@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from mcp.server import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
 
 mcp = MCPServer("MCP Detective")
 
@@ -76,13 +77,19 @@ def listar_casos() -> list[dict]:
 @mcp.tool()
 def consultar_eventos(caso_id: str) -> list[dict]:
     """Consulta los registros exactos de eventos del caso indicado."""
-    return logica_consultar_eventos(caso_id)
+    try:
+        return logica_consultar_eventos(caso_id)
+    except ValueError as error:
+        raise ToolError(str(error)) from error
 
 
 @mcp.tool()
 def registrar_alerta(caso_id: str, nivel: str, motivo: str) -> dict:
     """Registra una alerta válida en memoria, una sola vez por caso."""
-    return logica_registrar_alerta(caso_id, nivel, motivo)
+    try:
+        return logica_registrar_alerta(caso_id, nivel, motivo)
+    except ValueError as error:
+        raise ToolError(str(error)) from error
 
 
 if __name__ == "__main__":
