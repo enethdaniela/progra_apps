@@ -1,27 +1,27 @@
 import json
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server import MCPServer
 
-mcp = FastMCP("MCP Detective")
+mcp = MCPServer("MCP Detective")
 
 _alertas_en_memoria: dict[str, dict] = {}
 
 
-def _cargar_datos() -> dict:
-    """Carga casos.json relativo a la ubicación de este archivo."""
-    ruta = Path(__file__).parent / "casos.json"
-    with open(ruta, "r", encoding="utf-8") as archivo:
+def _cargar_datos() -> dict[str, dict]:
+    """Carga los casos desde el archivo ubicado junto a este servidor."""
+    ruta = Path(__file__).with_name("casos.json")
+    with ruta.open(encoding="utf-8") as archivo:
         return json.load(archivo)
 
 
 def _reiniciar_alertas() -> None:
-    """Limpia el almacenamiento en memoria para las pruebas."""
-    global _alertas_en_memoria
-    _alertas_en_memoria = {}
+    """Limpia el almacenamiento en memoria para aislar las pruebas."""
+    _alertas_en_memoria.clear()
 
 
 def logica_listar_casos() -> list[dict]:
+    """Prepara el resumen de los casos sin clasificarlos."""
     casos = _cargar_datos()
     return [
         {
@@ -34,27 +34,25 @@ def logica_listar_casos() -> list[dict]:
 
 
 def logica_consultar_eventos(caso_id: str) -> list[dict]:
+    """Obtiene los eventos exactos de un caso existente."""
     casos = _cargar_datos()
-    if caso_id not in casos:
+    if not isinstance(caso_id, str) or caso_id not in casos:
         raise ValueError(f"El caso '{caso_id}' no existe en el sistema.")
     return casos[caso_id]["eventos"]
 
 
 def logica_registrar_alerta(caso_id: str, nivel: str, motivo: str) -> dict:
+    """Valida y registra una alerta en la memoria de esta instancia."""
     casos = _cargar_datos()
-    if caso_id not in casos:
+    if not isinstance(caso_id, str) or caso_id not in casos:
         raise ValueError(f"El caso '{caso_id}' no existe.")
 
     niveles_validos = {"bajo", "medio", "alto"}
-    if nivel not in niveles_validos:
-        raise ValueError(
-            f"Nivel inválido '{nivel}'. Debe ser 'bajo', 'medio' o 'alto'."
-        )
+    if not isinstance(nivel, str) or nivel not in niveles_validos:
+        raise ValueError("Nivel inválido. Debe ser 'bajo', 'medio' o 'alto'.")
 
     if not isinstance(motivo, str) or not motivo.strip():
-        raise ValueError(
-            "El motivo no puede estar vacío ni contener solo espacios en blanco."
-        )
+        raise ValueError("El motivo no puede estar vacío ni contener solo espacios.")
 
     if caso_id in _alertas_en_memoria:
         raise ValueError(f"Ya existe una alerta registrada para el caso '{caso_id}'.")
@@ -62,7 +60,7 @@ def logica_registrar_alerta(caso_id: str, nivel: str, motivo: str) -> dict:
     alerta = {
         "caso_id": caso_id,
         "nivel": nivel,
-        "motivo": motivo.strip(),
+        "motivo": motivo,
         "estado": "registrada",
     }
     _alertas_en_memoria[caso_id] = alerta
@@ -71,19 +69,19 @@ def logica_registrar_alerta(caso_id: str, nivel: str, motivo: str) -> dict:
 
 @mcp.tool()
 def listar_casos() -> list[dict]:
-    """Devuelve el identificador, sistema y cantidad de eventos de cada caso."""
+    """Lista los identificadores, sistemas y cantidades de eventos de los casos."""
     return logica_listar_casos()
 
 
 @mcp.tool()
 def consultar_eventos(caso_id: str) -> list[dict]:
-    """Devuelve los registros exactos de eventos de un caso específico."""
+    """Consulta los registros exactos de eventos del caso indicado."""
     return logica_consultar_eventos(caso_id)
 
 
 @mcp.tool()
 def registrar_alerta(caso_id: str, nivel: str, motivo: str) -> dict:
-    """Registra una alerta en memoria validando el caso, nivel y motivo."""
+    """Registra una alerta válida en memoria, una sola vez por caso."""
     return logica_registrar_alerta(caso_id, nivel, motivo)
 
 
